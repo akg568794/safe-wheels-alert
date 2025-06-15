@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -134,7 +133,7 @@ const DashboardStats = ({ stats, currentEAR, currentMAR }: DashboardStatsProps) 
               <Progress value={currentEAR * 100} className="h-3" />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>Drowsy (≤0.28)</span>
-                <span>Alert (>0.28)</span>
+                <span>Alert ({'>'}0.28)</span>
               </div>
             </div>
 
@@ -146,7 +145,7 @@ const DashboardStats = ({ stats, currentEAR, currentMAR }: DashboardStatsProps) 
               <Progress value={Math.min(currentMAR * 100, 100)} className="h-3" />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>Normal (≤0.60)</span>
-                <span>Yawning (>0.60)</span>
+                <span>Yawning ({'>'}0.60)</span>
               </div>
             </div>
 
