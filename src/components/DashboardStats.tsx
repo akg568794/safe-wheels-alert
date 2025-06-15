@@ -9,7 +9,13 @@ import {
   TrendingUp, 
   Target 
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent,
+  type ChartConfig 
+} from '@/components/ui/chart';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 interface DashboardStatsProps {
   stats: {
@@ -24,6 +30,25 @@ interface DashboardStatsProps {
 }
 
 const DashboardStats = ({ stats, currentEAR, currentMAR }: DashboardStatsProps) => {
+  // Chart configurations
+  const earMarChartConfig = {
+    ear: {
+      label: "EAR",
+      color: "#3b82f6",
+    },
+    mar: {
+      label: "MAR", 
+      color: "#f59e0b",
+    },
+  } satisfies ChartConfig;
+
+  const alertChartConfig = {
+    alerts: {
+      label: "Alerts",
+      color: "#ef4444",
+    },
+  } satisfies ChartConfig;
+
   // Generate sample historical data
   const generateHistoricalData = () => {
     const data = [];
@@ -206,28 +231,26 @@ const DashboardStats = ({ stats, currentEAR, currentMAR }: DashboardStatsProps) 
             <CardTitle>Real-time EAR/MAR Trends</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={earMarChartConfig}>
               <LineChart data={historicalData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="time" />
                 <YAxis domain={[0, 1]} />
-                <Tooltip />
+                <ChartTooltip content={<ChartTooltipContent />} />
                 <Line 
                   type="monotone" 
                   dataKey="ear" 
-                  stroke="#3b82f6" 
+                  stroke="var(--color-ear)" 
                   strokeWidth={2}
-                  name="EAR"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="mar" 
-                  stroke="#f59e0b" 
+                  stroke="var(--color-mar)" 
                   strokeWidth={2}
-                  name="MAR"
                 />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -236,15 +259,15 @@ const DashboardStats = ({ stats, currentEAR, currentMAR }: DashboardStatsProps) 
             <CardTitle>Alert Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={alertChartConfig}>
               <BarChart data={historicalData.slice(-10)}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="time" />
                 <YAxis />
-                <Tooltip />
-                <Bar dataKey="alerts" fill="#ef4444" name="Alerts" />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="alerts" fill="var(--color-alerts)" />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
