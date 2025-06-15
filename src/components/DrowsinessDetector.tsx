@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +20,7 @@ const DrowsinessDetector = ({
 }: DrowsinessDetectorProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [cameraStatus, setCameraStatus] = useState<'inactive' | 'active' | 'error'>('inactive');
   const [faceDetected, setFaceDetected] = useState(false);
   const [currentEAR, setCurrentEAR] = useState(0.3);
@@ -62,6 +62,12 @@ const DrowsinessDetector = ({
   };
 
   const stopCamera = () => {
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     if (videoRef.current?.srcObject) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
       tracks.forEach(track => track.stop());
@@ -69,6 +75,9 @@ const DrowsinessDetector = ({
     }
     setCameraStatus('inactive');
     setFaceDetected(false);
+    
+    // Reset alert state when stopping
+    onAlertChange('none');
   };
 
   const calculateEAR = (eyeLandmarks: any[]) => {
@@ -107,10 +116,18 @@ const DrowsinessDetector = ({
   };
 
   const startFaceDetection = () => {
-    // Simulate face detection and drowsiness detection
-    const interval = setInterval(() => {
+    // Clear any existing interval first
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // Slower tracking interval - changed from 500ms to 2000ms (2 seconds)
+    intervalRef.current = setInterval(() => {
       if (!isMonitoring) {
-        clearInterval(interval);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         return;
       }
 
@@ -145,13 +162,16 @@ const DrowsinessDetector = ({
         
         setAlertCount(prev => {
           const newCount = prev + 1;
-          onStatsUpdate((prevStats: any) => ({
-            ...prevStats,
-            totalAlerts: newCount,
-            yawnCount: yawnDetectedNow ? prevStats.yawnCount + 1 : prevStats.yawnCount,
-            averageEAR: simulatedEAR,
-            blinkRate: Math.floor(Math.random() * 10) + 10
-          }));
+          // Use setTimeout to avoid state update during render
+          setTimeout(() => {
+            onStatsUpdate((prevStats: any) => ({
+              ...prevStats,
+              totalAlerts: newCount,
+              yawnCount: yawnDetectedNow ? prevStats.yawnCount + 1 : prevStats.yawnCount,
+              averageEAR: simulatedEAR,
+              blinkRate: Math.floor(Math.random() * 10) + 10
+            }));
+          }, 0);
           return newCount;
         });
       } else {
@@ -160,7 +180,7 @@ const DrowsinessDetector = ({
 
       // Draw detection results on canvas
       drawDetectionResults();
-    }, 500); // Update every 500ms
+    }, 2000); // Changed from 500ms to 2000ms for slower tracking
   };
 
   const drawDetectionResults = () => {
