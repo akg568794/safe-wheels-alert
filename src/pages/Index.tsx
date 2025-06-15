@@ -37,6 +37,7 @@ const Index = () => {
 
   const stopMonitoring = () => {
     setIsMonitoring(false);
+    // Immediately clear alert level when stopping monitoring
     setAlertLevel('none');
   };
 
