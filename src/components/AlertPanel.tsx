@@ -13,27 +13,6 @@ const AlertPanel = ({ alertLevel }: AlertPanelProps) => {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
 
-  useEffect(() => {
-    setIsVisible(alertLevel !== 'none');
-    
-    if (alertLevel !== 'none' && audioEnabled) {
-      playAlertSound(alertLevel);
-    }
-  }, [alertLevel, audioEnabled]);
-
-  // Early return if alert level is 'none' or not visible
-  if (!isVisible || alertLevel === 'none') return null;
-
-  const playAlertSound = (level: 'warning' | 'danger') => {
-    if (!audioContext) {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      setAudioContext(ctx);
-      generateAlertTone(ctx, level);
-    } else {
-      generateAlertTone(audioContext, level);
-    }
-  };
-
   const generateAlertTone = (ctx: AudioContext, level: 'warning' | 'danger') => {
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
@@ -54,6 +33,27 @@ const AlertPanel = ({ alertLevel }: AlertPanelProps) => {
     oscillator.start(ctx.currentTime);
     oscillator.stop(ctx.currentTime + duration);
   };
+
+  const playAlertSound = (level: 'warning' | 'danger') => {
+    if (!audioContext) {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      setAudioContext(ctx);
+      generateAlertTone(ctx, level);
+    } else {
+      generateAlertTone(audioContext, level);
+    }
+  };
+
+  useEffect(() => {
+    setIsVisible(alertLevel !== 'none');
+    
+    if (alertLevel !== 'none' && audioEnabled) {
+      playAlertSound(alertLevel);
+    }
+  }, [alertLevel, audioEnabled]);
+
+  // Early return if alert level is 'none' or not visible
+  if (!isVisible || alertLevel === 'none') return null;
 
   const dismissAlert = () => {
     setIsVisible(false);
