@@ -21,6 +21,9 @@ const AlertPanel = ({ alertLevel }: AlertPanelProps) => {
     }
   }, [alertLevel, audioEnabled]);
 
+  // Early return if alert level is 'none' or not visible
+  if (!isVisible || alertLevel === 'none') return null;
+
   const playAlertSound = (level: 'warning' | 'danger') => {
     if (!audioContext) {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -55,8 +58,6 @@ const AlertPanel = ({ alertLevel }: AlertPanelProps) => {
   const dismissAlert = () => {
     setIsVisible(false);
   };
-
-  if (!isVisible) return null;
 
   const alertConfig = {
     warning: {
